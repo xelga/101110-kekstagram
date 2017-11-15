@@ -1,7 +1,7 @@
 # Личный проект «Кекстаграм» [![Build status][travis-image]][travis-url]
 
 * Студент: [Олька Звонова](https://up.htmlacademy.ru/javascript/11/user/101110).
-* Наставник: `Неизвестно`.
+* Наставник: [Михаил Косымов](https://htmlacademy.ru/profile/id586113).
 
 ---
 
