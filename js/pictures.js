@@ -1,5 +1,7 @@
 'use strict';
 
+var ESC_KEYCODE = 27;
+var ENTER_KEYCODE = 13;
 var COMMENT_TEXTS = [
   'Всё отлично!',
   'В целом всё неплохо. Но не всё.',
@@ -54,8 +56,54 @@ var createFragment = function () {
 picturesContainer.appendChild(createFragment());
 
 var galleryOverlay = document.querySelector('.gallery-overlay');
-galleryOverlay.classList.remove('hidden');
+var galleryOverlayClose = galleryOverlay.querySelector('.gallery-overlay-close');
 
-galleryOverlay.querySelector('.gallery-overlay-image').src = photos[0].url;
-galleryOverlay.querySelector('.likes-count').textContent = photos[0].likes;
-galleryOverlay.querySelector('.comments-count').textContent = photos[0].comments.length.toString();
+var setPictureDate = function (event) {
+  var currentPicture = event.target;
+
+  if (event.target.tagName === 'IMG') {
+    currentPicture = event.target.parentNode;
+  }
+
+  galleryOverlay.querySelector('.gallery-overlay-image').src = currentPicture.querySelector('img').src;
+  galleryOverlay.querySelector('.likes-count').textContent = currentPicture.querySelector('.picture-likes').textContent;
+  galleryOverlay.querySelector('.comments-count').textContent = currentPicture.querySelector('.picture-comments').textContent;
+};
+
+var showGalleryOverlay = function (event) {
+  setPictureDate(event);
+  galleryOverlay.classList.remove('hidden');
+  document.addEventListener('keydown', onGalleryOverlayEscPress);
+};
+
+var hiddenGalleryOverlay = function () {
+  galleryOverlay.classList.add('hidden');
+  document.removeEventListener('keydown', onGalleryOverlayEscPress);
+};
+
+var onGalleryOverlayEscPress = function (event) {
+  if (event.keyCode === ESC_KEYCODE) {
+    hiddenGalleryOverlay();
+  }
+};
+
+picturesContainer.addEventListener('click', function (event) {
+  event.preventDefault();
+  showGalleryOverlay(event);
+});
+
+picturesContainer.addEventListener('keydown', function (event) {
+  if (event.keyCode === ENTER_KEYCODE) {
+    showGalleryOverlay(event);
+  }
+});
+
+galleryOverlayClose.addEventListener('click', function () {
+  hiddenGalleryOverlay();
+});
+
+galleryOverlayClose.addEventListener('keydown', function (event) {
+  if (event.keyCode === ENTER_KEYCODE) {
+    hiddenGalleryOverlay();
+  }
+});
