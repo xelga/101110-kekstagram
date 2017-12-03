@@ -194,6 +194,10 @@ var splitFormHashtagsValue = function (params) {
 };
 
 var validateFormHashtags = function (params) {
+  if (!params) {
+    return true;
+  }
+
   formValid = true;
   var splittedFormHashtagsValue = splitFormHashtagsValue(params);
   var hashtagsItem;
@@ -240,8 +244,8 @@ uploadFormHashtags.addEventListener('change', function () {
   }
 });
 
-uploadForm.addEventListener('submit', function () {
-  if (!formValid) {
+uploadForm.addEventListener('submit', function (event) {
+  if (!validateFormHashtags(formHashtagsValue)) {
     event.preventDefault();
   }
 });
