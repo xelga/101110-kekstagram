@@ -7,7 +7,7 @@
   var setPictureDate = function (event) {
     var currentPicture = event.target;
 
-    if (event.target.tagName === 'IMG') {
+    if (event.target.tagName.toLowerCase() === 'img') {
       currentPicture = event.target.parentNode;
     }
 
