@@ -65,11 +65,50 @@
 
   var currentEffectName;
   var uploadEffectLevel = uploadForm.querySelector('.upload-effect-level');
-  var uploadEffectLevelPin = uploadEffectLevel.querySelector('.upload-effect-level-pin');
-  var uploadEffectLevelVal = uploadEffectLevel.querySelector('.upload-effect-level-val');
-  var uploadEffectLevelValue = uploadEffectLevel.querySelector('.upload-effect-level-value');
+  var effectLevelPin = uploadEffectLevel.querySelector('.upload-effect-level-pin');
+  var effectLevelValueLine = uploadEffectLevel.querySelector('.upload-effect-level-val');
+  var effectLevelValueInput = uploadEffectLevel.querySelector('.upload-effect-level-value');
   var handlerX;
   uploadEffectLevel.classList.add('hidden');
+
+  var FILTERS = {
+    chrome: {
+      name: 'grayscale',
+      min: 0,
+      max: 1,
+      measures: ''
+    },
+    sepia: {
+      name: 'sepia',
+      min: 0,
+      max: 1,
+      measures: ''
+    },
+    marvin: {
+      name: 'invert',
+      min: 0,
+      max: 100,
+      measures: '%'
+    },
+    phobos: {
+      name: 'blur',
+      min: 0,
+      max: 5,
+      measures: 'px'
+
+    },
+    heat: {
+      name: 'brightness',
+      min: 1,
+      max: 3,
+      measures: ''
+    }
+  };
+
+  var getCurrentFilter = function (params, filterName, sliderValue) {
+    var currentFilter = params[filterName].name + '(' + sliderValue + params[filterName].measures + ')';
+    return currentFilter;
+  };
 
   uploadEffectControls.addEventListener('click', function (event) {
     if (event.target.tagName.toLowerCase() === 'input') {
@@ -79,6 +118,7 @@
       }
       currentEffectName = 'effect-' + currentEffectControl;
       uploadImagePreview.classList.add(currentEffectName);
+
       if (uploadImagePreview.hasAttribute('style')) {
         uploadImagePreview.style.removeProperty('filter');
       }
@@ -88,21 +128,16 @@
       if (event.target.value !== 'none') {
         uploadEffectLevel.classList.remove('hidden');
 
-        var effectImage = uploadForm.querySelector('.' + currentEffectName);
-        var effectImageStyles = getComputedStyle(effectImage);
-        var effectImageStylesFilter = effectImageStyles.filter;
-        var splittedEffectImageStylesFilter = effectImageStylesFilter.split('(');
-        var effectImageFilterValue = parseInt(splittedEffectImageStylesFilter[1], 10);
-        var uploadEffectLevelLine = uploadEffectLevel.querySelector('.upload-effect-level-line');
+        var effectImageFilterMax = FILTERS[event.target.value].max;
+        var effectLevelLine = uploadEffectLevel.querySelector('.upload-effect-level-line');
+        var effectLevelValueLineWidth = effectLevelLine.offsetWidth;
 
-        uploadEffectLevelPin.style.left = uploadEffectLevelLine.offsetWidth + 'px';
-        uploadEffectLevelVal.style.width = uploadEffectLevelLine.offsetWidth + 'px';
-        uploadEffectLevelValue.value = effectImageFilterValue;
+        effectLevelPin.style.left = effectLevelValueLineWidth + 'px';
+        effectLevelValueLine.style.width = effectLevelValueLineWidth + 'px';
+        effectLevelValueInput.value = effectImageFilterMax;
 
-        uploadEffectLevelPin.addEventListener('mousedown', function (handlerEvent) {
+        effectLevelPin.addEventListener('mousedown', function (handlerEvent) {
           handlerEvent.preventDefault();
-
-          var uploadEffectLevelLineWidth = uploadEffectLevelLine.offsetWidth;
           var minClientX = Math.round(handlerEvent.target.parentNode.getBoundingClientRect().x);
 
           var onMouseMove = function (moveEvent) {
@@ -110,47 +145,22 @@
 
             var moveClientX = moveEvent.clientX;
             handlerX = moveClientX - minClientX;
-            uploadEffectLevelValue.value = handlerX;
+            var moveEffectImageFilterValue = Math.round(effectImageFilterMax * handlerX / effectLevelValueLineWidth * 100) / 100;
+            effectLevelValueInput.value = moveEffectImageFilterValue;
 
             if (handlerX < 0) {
               handlerX = 0;
-              uploadEffectLevelValue.value = 0;
+              effectLevelValueInput.value = 0;
             }
 
-            if (handlerX > uploadEffectLevelLineWidth) {
-              handlerX = uploadEffectLevelLineWidth;
-              uploadEffectLevelValue.value = uploadEffectLevelLineWidth;
+            if (handlerX > effectLevelValueLineWidth) {
+              handlerX = effectLevelValueLineWidth;
+              effectLevelValueInput.value = effectImageFilterMax;
             }
 
-            uploadEffectLevelPin.style.left = handlerX + 'px';
-            uploadEffectLevelVal.style.width = handlerX + 'px';
-
-            var moveEffectImageFilterValue = effectImageFilterValue * handlerX / uploadEffectLevelLineWidth;
-
-            if (uploadImagePreview.classList.contains('effect-chrome')) {
-              uploadImagePreview.style.filter = 'grayscale(' + moveEffectImageFilterValue + ')';
-              uploadEffectLevelValue.value = moveEffectImageFilterValue;
-            }
-
-            if (uploadImagePreview.classList.contains('effect-sepia')) {
-              uploadImagePreview.style.filter = 'sepia(' + moveEffectImageFilterValue + ')';
-              uploadEffectLevelValue.value = moveEffectImageFilterValue;
-            }
-
-            if (uploadImagePreview.classList.contains('effect-marvin')) {
-              uploadImagePreview.style.filter = 'invert(' + moveEffectImageFilterValue * 100 + '%)';
-              uploadEffectLevelValue.value = moveEffectImageFilterValue * 100;
-            }
-
-            if (uploadImagePreview.classList.contains('effect-phobos')) {
-              uploadImagePreview.style.filter = 'blur(' + moveEffectImageFilterValue + 'px)';
-              uploadEffectLevelValue.value = moveEffectImageFilterValue;
-            }
-
-            if (uploadImagePreview.classList.contains('effect-heat')) {
-              uploadImagePreview.style.filter = 'brightness(' + moveEffectImageFilterValue + ')';
-              uploadEffectLevelValue.value = moveEffectImageFilterValue;
-            }
+            effectLevelPin.style.left = handlerX + 'px';
+            effectLevelValueLine.style.width = handlerX + 'px';
+            uploadImagePreview.style.filter = getCurrentFilter(FILTERS, currentEffectControl, moveEffectImageFilterValue);
           };
 
           var onMouseUp = function (upEvent) {
