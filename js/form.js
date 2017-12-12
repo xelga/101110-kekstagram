@@ -63,13 +63,14 @@
     }
   });
 
-  var currentEffectName;
-  var uploadEffectLevel = uploadForm.querySelector('.upload-effect-level');
-  var effectLevelPin = uploadEffectLevel.querySelector('.upload-effect-level-pin');
-  var effectLevelValueLine = uploadEffectLevel.querySelector('.upload-effect-level-val');
-  var effectLevelValueInput = uploadEffectLevel.querySelector('.upload-effect-level-value');
-  var handlerX;
-  uploadEffectLevel.classList.add('hidden');
+  var sliderWrapper = uploadForm.querySelector('.upload-effect-level');
+  var sliderContainer = uploadForm.querySelector('.upload-effect-level-line');
+  var sliderHandle = sliderWrapper.querySelector('.upload-effect-level-pin');
+  var sliderProgressBar = sliderWrapper.querySelector('.upload-effect-level-val');
+  var sliderInput = sliderWrapper.querySelector('.upload-effect-level-value');
+  var sliderContainerWidth;
+
+  sliderWrapper.classList.add('hidden');
 
   var FILTERS = {
     chrome: {
@@ -99,68 +100,58 @@
     },
     heat: {
       name: 'brightness',
-      min: 1,
+      min: 0,
       max: 3,
       measures: ''
     }
   };
+
+  var currentFilterName;
+  var filterMax;
+  var filterMin;
 
   var getCurrentFilter = function (params, filterName, sliderValue) {
     var currentFilter = params[filterName].name + '(' + sliderValue + params[filterName].measures + ')';
     return currentFilter;
   };
 
-  uploadEffectControls.addEventListener('click', function (event) {
+  uploadEffectControls.addEventListener('change', function (event) {
     if (event.target.tagName.toLowerCase() === 'input') {
-      var currentEffectControl = event.target.value;
-      if (uploadImagePreview.classList.contains(currentEffectName)) {
-        uploadImagePreview.classList.remove(currentEffectName);
-      }
-      currentEffectName = 'effect-' + currentEffectControl;
-      uploadImagePreview.classList.add(currentEffectName);
+      currentFilterName = event.target.value;
 
-      if (uploadImagePreview.hasAttribute('style')) {
-        uploadImagePreview.style.removeProperty('filter');
-      }
+      sliderWrapper.classList.add('hidden');
+      uploadImagePreview.style.filter = 'none';
 
-      uploadEffectLevel.classList.add('hidden');
+      if (currentFilterName !== 'none') {
+        sliderWrapper.classList.remove('hidden');
 
-      if (event.target.value !== 'none') {
-        uploadEffectLevel.classList.remove('hidden');
+        filterMax = FILTERS[currentFilterName].max;
+        filterMin = FILTERS[currentFilterName].min;
+        sliderContainerWidth = sliderContainer.offsetWidth;
+        sliderHandle.style.left = sliderContainerWidth + 'px';
+        sliderProgressBar.style.width = sliderContainerWidth + 'px';
+        uploadImagePreview.style.filter = getCurrentFilter(FILTERS, currentFilterName, filterMax);
+        sliderInput.value = filterMax;
 
-        var effectImageFilterMax = FILTERS[event.target.value].max;
-        var effectLevelLine = uploadEffectLevel.querySelector('.upload-effect-level-line');
-        var effectLevelValueLineWidth = effectLevelLine.offsetWidth;
+        sliderHandle.addEventListener('mousedown', function (handleEvent) {
+          handleEvent.preventDefault();
 
-        effectLevelPin.style.left = effectLevelValueLineWidth + 'px';
-        effectLevelValueLine.style.width = effectLevelValueLineWidth + 'px';
-        effectLevelValueInput.value = effectImageFilterMax;
-
-        effectLevelPin.addEventListener('mousedown', function (handlerEvent) {
-          handlerEvent.preventDefault();
-          var minClientX = Math.round(handlerEvent.target.parentNode.getBoundingClientRect().x);
+          var minHandleX = Math.round(handleEvent.target.parentNode.getBoundingClientRect().x);
 
           var onMouseMove = function (moveEvent) {
             moveEvent.preventDefault();
 
-            var moveClientX = moveEvent.clientX;
-            handlerX = moveClientX - minClientX;
-            var moveEffectImageFilterValue = Math.round(effectImageFilterMax * handlerX / effectLevelValueLineWidth * 100) / 100;
-            effectLevelValueInput.value = moveEffectImageFilterValue;
+            var moveHandleX = moveEvent.clientX;
+            var currentHandleX = moveHandleX - minHandleX;
+            var sliderValue = Math.round((currentHandleX / sliderContainerWidth) * 100) / 100;
+            var filterValue = ((filterMax - filterMin) * sliderValue) + filterMin;
 
-            if (handlerX < 0) {
-              handlerX = 0;
-              effectLevelValueInput.value = 0;
+            if (filterValue <= filterMax && filterValue >= filterMin) {
+              sliderHandle.style.left = currentHandleX + 'px';
+              sliderProgressBar.style.width = currentHandleX + 'px';
+              uploadImagePreview.style.filter = getCurrentFilter(FILTERS, currentFilterName, filterValue);
+              sliderInput.value = filterValue;
             }
-
-            if (handlerX > effectLevelValueLineWidth) {
-              handlerX = effectLevelValueLineWidth;
-              effectLevelValueInput.value = effectImageFilterMax;
-            }
-
-            effectLevelPin.style.left = handlerX + 'px';
-            effectLevelValueLine.style.width = handlerX + 'px';
-            uploadImagePreview.style.filter = getCurrentFilter(FILTERS, currentEffectControl, moveEffectImageFilterValue);
           };
 
           var onMouseUp = function (upEvent) {
@@ -175,8 +166,6 @@
         });
       }
     }
-
-    return currentEffectName;
   });
 
   var formHashtagsValue;
