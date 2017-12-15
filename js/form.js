@@ -8,9 +8,6 @@
   var uploadImagePreview = uploadOverlay.querySelector('.effect-image-preview');
   var uploadFormHashtags = uploadOverlay.querySelector('.upload-form-hashtags');
   var uploadFormDescription = uploadOverlay.querySelector('.upload-form-description');
-  var uploadResizeButtonDec = uploadOverlay.querySelector('.upload-resize-controls-button-dec');
-  var uploadResizeButtonInc = uploadOverlay.querySelector('.upload-resize-controls-button-inc');
-  var uploadResizeControlsValue = uploadOverlay.querySelector('.upload-resize-controls-value');
 
   var showUploadOverlay = function () {
     uploadOverlay.classList.remove('hidden');
@@ -38,134 +35,29 @@
     hiddenUploadOverlay();
   });
 
-  var resizeStep = 25;
+  var uploadResizeButtonDec = uploadOverlay.querySelector('.upload-resize-controls-button-dec');
+  var uploadResizeButtonInc = uploadOverlay.querySelector('.upload-resize-controls-button-inc');
+  var uploadResizeControlsValue = uploadOverlay.querySelector('.upload-resize-controls-value');
 
-  var currentResizeControlsValue;
-  var currentResizeControlsValueModified;
+  var adjustScale = function (scale) {
+    uploadResizeControlsValue.value = scale + '%';
+    uploadImagePreview.style.transform = 'scale(' + scale / 100 + ')';
+  };
 
   uploadResizeButtonDec.addEventListener('click', function () {
-    currentResizeControlsValue = parseInt(uploadResizeControlsValue.value, 10);
-    currentResizeControlsValueModified = currentResizeControlsValue - resizeStep;
-
-    if (currentResizeControlsValue >= 50 && currentResizeControlsValue <= 100) {
-      uploadResizeControlsValue.value = currentResizeControlsValueModified + '%';
-      uploadImagePreview.style.transform = 'scale(' + currentResizeControlsValueModified / 100 + ')';
-    }
+    window.initializeScale(uploadResizeControlsValue, adjustScale);
   });
 
   uploadResizeButtonInc.addEventListener('click', function () {
-    currentResizeControlsValue = parseInt(uploadResizeControlsValue.value, 10);
-    currentResizeControlsValueModified = currentResizeControlsValue + resizeStep;
-
-    if (currentResizeControlsValue >= 25 && currentResizeControlsValue < 100) {
-      uploadResizeControlsValue.value = currentResizeControlsValueModified + '%';
-      uploadImagePreview.style.transform = 'scale(' + currentResizeControlsValueModified / 100 + ')';
-    }
+    window.initializeScale(uploadResizeControlsValue, adjustScale, true);
   });
 
-  var sliderWrapper = uploadForm.querySelector('.upload-effect-level');
-  var sliderContainer = uploadForm.querySelector('.upload-effect-level-line');
-  var sliderHandle = sliderWrapper.querySelector('.upload-effect-level-pin');
-  var sliderProgressBar = sliderWrapper.querySelector('.upload-effect-level-val');
-  var sliderInput = sliderWrapper.querySelector('.upload-effect-level-value');
-  var sliderContainerWidth;
-
-  sliderWrapper.classList.add('hidden');
-
-  var FILTERS = {
-    chrome: {
-      name: 'grayscale',
-      min: 0,
-      max: 1,
-      measures: ''
-    },
-    sepia: {
-      name: 'sepia',
-      min: 0,
-      max: 1,
-      measures: ''
-    },
-    marvin: {
-      name: 'invert',
-      min: 0,
-      max: 100,
-      measures: '%'
-    },
-    phobos: {
-      name: 'blur',
-      min: 0,
-      max: 5,
-      measures: 'px'
-
-    },
-    heat: {
-      name: 'brightness',
-      min: 0,
-      max: 3,
-      measures: ''
-    }
-  };
-
-  var currentFilterName;
-  var filterMax;
-  var filterMin;
-
-  var getCurrentFilter = function (params, filterName, sliderValue) {
-    var currentFilter = params[filterName].name + '(' + sliderValue + params[filterName].measures + ')';
-    return currentFilter;
+  var applyFilter = function (filterValue) {
+    uploadImagePreview.style.filter = filterValue;
   };
 
   uploadEffectControls.addEventListener('change', function (event) {
-    if (event.target.tagName.toLowerCase() === 'input') {
-      currentFilterName = event.target.value;
-
-      sliderWrapper.classList.add('hidden');
-      uploadImagePreview.style.filter = 'none';
-
-      if (currentFilterName !== 'none') {
-        sliderWrapper.classList.remove('hidden');
-
-        filterMax = FILTERS[currentFilterName].max;
-        filterMin = FILTERS[currentFilterName].min;
-        sliderContainerWidth = sliderContainer.offsetWidth;
-        sliderHandle.style.left = sliderContainerWidth + 'px';
-        sliderProgressBar.style.width = sliderContainerWidth + 'px';
-        uploadImagePreview.style.filter = getCurrentFilter(FILTERS, currentFilterName, filterMax);
-        sliderInput.value = filterMax;
-
-        sliderHandle.addEventListener('mousedown', function (handleEvent) {
-          handleEvent.preventDefault();
-
-          var minHandleX = Math.round(handleEvent.target.parentNode.getBoundingClientRect().x);
-
-          var onMouseMove = function (moveEvent) {
-            moveEvent.preventDefault();
-
-            var moveHandleX = moveEvent.clientX;
-            var currentHandleX = moveHandleX - minHandleX;
-            var sliderValue = Math.round((currentHandleX / sliderContainerWidth) * 100) / 100;
-            var filterValue = ((filterMax - filterMin) * sliderValue) + filterMin;
-
-            if (filterValue <= filterMax && filterValue >= filterMin) {
-              sliderHandle.style.left = currentHandleX + 'px';
-              sliderProgressBar.style.width = currentHandleX + 'px';
-              uploadImagePreview.style.filter = getCurrentFilter(FILTERS, currentFilterName, filterValue);
-              sliderInput.value = filterValue;
-            }
-          };
-
-          var onMouseUp = function (upEvent) {
-            upEvent.preventDefault();
-
-            document.removeEventListener('mousemove', onMouseMove);
-            document.removeEventListener('mouseup', onMouseUp);
-          };
-
-          document.addEventListener('mousemove', onMouseMove);
-          document.addEventListener('mouseup', onMouseUp);
-        });
-      }
-    }
+    window.initializeFilters(event.target, applyFilter);
   });
 
   var formHashtagsValue;
