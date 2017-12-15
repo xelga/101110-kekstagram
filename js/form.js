@@ -45,13 +45,11 @@
   };
 
   uploadResizeButtonDec.addEventListener('click', function () {
-    window.initializeScale.callBack = adjustScale;
-    window.initializeScale.scaleDown(uploadResizeControlsValue);
+    window.initializeScale(uploadResizeControlsValue, adjustScale);
   });
 
   uploadResizeButtonInc.addEventListener('click', function () {
-    window.initializeScale.callBack = adjustScale;
-    window.initializeScale.scaleUp(uploadResizeControlsValue);
+    window.initializeScale(uploadResizeControlsValue, adjustScale, true);
   });
 
   var applyFilter = function (filterValue) {
