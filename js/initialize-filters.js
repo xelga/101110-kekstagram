@@ -45,6 +45,7 @@
     }
   };
 
+  var sliderDefaultValue = 100;
   var currentFilterName;
   var filterMax;
   var filterMin;
@@ -74,7 +75,7 @@
         if (typeof callback === 'function') {
           callback(getCurrentFilter(FILTERS, currentFilterName, filterMax));
         }
-        sliderInput.value = filterMax;
+        sliderInput.value = sliderDefaultValue;
 
         sliderHandle.addEventListener('mousedown', function (handleEvent) {
           handleEvent.preventDefault();
@@ -95,7 +96,8 @@
               if (typeof callback === 'function') {
                 callback(getCurrentFilter(FILTERS, currentFilterName, filterValue));
               }
-              sliderInput.value = filterValue;
+
+              sliderInput.value = Math.round(sliderValue * 100);
             }
           };
 

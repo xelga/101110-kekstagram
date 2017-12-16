@@ -6,6 +6,7 @@
   var uploadSelectImage = document.querySelector('#upload-select-image');
   var uploadEffectControls = uploadOverlay.querySelector('.upload-effect-controls');
   var uploadImagePreview = uploadOverlay.querySelector('.effect-image-preview');
+  var sliderWrapper = uploadOverlay.querySelector('.upload-effect-level');
   var uploadFormHashtags = uploadOverlay.querySelector('.upload-form-hashtags');
   var uploadFormDescription = uploadOverlay.querySelector('.upload-form-description');
 
@@ -120,9 +121,24 @@
     }
   });
 
+  var onFormLoad = function () {
+    uploadOverlay.classList.add('hidden');
+    uploadForm.reset();
+    uploadImagePreview.removeAttribute('style');
+    sliderWrapper.classList.add('hidden');
+  };
+
+  var onFormError = function (errorMessage) {
+    var errorNode = window.util.createErrorNode(errorMessage);
+    window.util.removeErrorNode(errorNode);
+  };
+
   uploadForm.addEventListener('submit', function (event) {
     if (!validateFormHashtags(formHashtagsValue)) {
       event.preventDefault();
+    } else {
+      event.preventDefault();
+      window.backend.save(new FormData(uploadForm), onFormLoad, onFormError);
     }
   });
 })();
