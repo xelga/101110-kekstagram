@@ -11,7 +11,13 @@
       if (xhr.status === 200) {
         onLoad(xhr.response);
       } else {
-        onError('Неизвестный статус: ' + xhr.status + ' ' + xhr.statusText);
+        if (xhr.response) {
+          for (var i = 0; i < xhr.response.length; i++) {
+            onError(xhr.response[i].errorMessage);
+          }
+        } else {
+          onError('Неизвестный статус: ' + xhr.status + ' ' + xhr.statusText);
+        }
       }
     });
     xhr.addEventListener('error', function () {

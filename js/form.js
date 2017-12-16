@@ -129,8 +129,8 @@
   };
 
   var onFormError = function (errorMessage) {
-    var node = window.util.createErrorNode(errorMessage);
-    document.body.appendChild(node);
+    var errorNode = window.util.createErrorNode(errorMessage);
+    window.util.removeErrorNode(errorNode);
   };
 
   uploadForm.addEventListener('submit', function (event) {

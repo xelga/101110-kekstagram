@@ -13,6 +13,8 @@
     return picture;
   };
 
+  window.util.appendErrorContainer();
+
   var onPicturesLoad = function (data) {
     var fragment = document.createDocumentFragment();
 
@@ -24,8 +26,8 @@
   };
 
   var onPicturesError = function (errorMessage) {
-    var node = window.util.createErrorNode(errorMessage);
-    document.body.appendChild(node);
+    var errorNode = window.util.createErrorNode(errorMessage);
+    window.util.removeErrorNode(errorNode);
   };
 
   window.backend.load(onPicturesLoad, onPicturesError);
