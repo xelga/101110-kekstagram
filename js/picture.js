@@ -13,15 +13,20 @@
     return picture;
   };
 
-  var createFragment = function () {
+  var onPicturesLoad = function (data) {
     var fragment = document.createDocumentFragment();
 
-    for (var i = 0; i < window.data.length; i++) {
-      fragment.appendChild(renderPicture(window.data[i]));
+    for (var i = 0; i < data.length; i++) {
+      fragment.appendChild(renderPicture(data[i]));
     }
 
-    return fragment;
+    picturesContainer.appendChild(fragment);
   };
 
-  picturesContainer.appendChild(createFragment());
+  var onPicturesError = function (errorMessage) {
+    var node = window.util.createErrorNode(errorMessage);
+    document.body.appendChild(node);
+  };
+
+  window.backend.load(onPicturesLoad, onPicturesError);
 })();
