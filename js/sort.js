@@ -22,7 +22,7 @@
       }
 
       if (event.target.value === 'random') {
-        sortedPictures = pictures.slice(0).sort(function (first, second) {
+        sortedPictures = pictures.slice(0).sort(function () {
           return Math.random() - 0.5;
         });
       }
