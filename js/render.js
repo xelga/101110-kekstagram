@@ -13,9 +13,7 @@
     return picture;
   };
 
-  window.util.appendErrorContainer();
-
-  var onPicturesLoad = function (data) {
+  window.render = function (data) {
     var fragment = document.createDocumentFragment();
 
     for (var i = 0; i < data.length; i++) {
@@ -24,11 +22,4 @@
 
     picturesContainer.appendChild(fragment);
   };
-
-  var onPicturesError = function (errorMessage) {
-    var errorNode = window.util.createErrorNode(errorMessage);
-    window.util.removeErrorNode(errorNode);
-  };
-
-  window.backend.load(onPicturesLoad, onPicturesError);
 })();

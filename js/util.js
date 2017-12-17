@@ -1,6 +1,10 @@
 'use strict';
 
 (function () {
+  var ERROR_INTERVAL = 5000; // ms
+  var DEBOUNCE_INTERVAL = 500; // ms
+  var lastTimeout;
+
   window.util = {
     ESC_KEYCODE: 27,
     ENTER_KEYCODE: 13,
@@ -22,7 +26,14 @@
     removeErrorNode: function (element) {
       setTimeout(function () {
         element.parentNode.removeChild(element);
-      }, 5000);
+      }, ERROR_INTERVAL);
+    },
+    debounce: function (fun) {
+      if (lastTimeout) {
+        clearTimeout(lastTimeout);
+      }
+
+      lastTimeout = setTimeout(fun, DEBOUNCE_INTERVAL);
     }
   };
 })();
