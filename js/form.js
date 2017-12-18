@@ -4,11 +4,33 @@
   var uploadForm = document.querySelector('.upload-form');
   var uploadFormCancel = uploadOverlay.querySelector('.upload-form-cancel');
   var uploadSelectImage = document.querySelector('#upload-select-image');
+  var uploadInput = uploadSelectImage.querySelector('.upload-input');
   var uploadEffectControls = uploadOverlay.querySelector('.upload-effect-controls');
   var uploadImagePreview = uploadOverlay.querySelector('.effect-image-preview');
   var sliderWrapper = uploadOverlay.querySelector('.upload-effect-level');
   var uploadFormHashtags = uploadOverlay.querySelector('.upload-form-hashtags');
   var uploadFormDescription = uploadOverlay.querySelector('.upload-form-description');
+
+  var resetUploadForm = function () {
+    uploadForm.reset();
+    uploadImagePreview.removeAttribute('style');
+    sliderWrapper.classList.add('hidden');
+  };
+
+  var setCurrentPicture = function (callback) {
+    var pictureWidth = 586; // px
+
+    uploadImagePreview.style.width = pictureWidth + 'px';
+    var reader = new FileReader();
+    reader.onload = function () {
+      uploadImagePreview.src = reader.result;
+
+      if (typeof callback === 'function') {
+        callback();
+      }
+    };
+    reader.readAsDataURL(uploadInput.files[0]);
+  };
 
   var showUploadOverlay = function () {
     uploadOverlay.classList.remove('hidden');
@@ -17,6 +39,7 @@
 
   var hiddenUploadOverlay = function () {
     uploadOverlay.classList.add('hidden');
+    resetUploadForm();
     document.removeEventListener('keydown', onUploadOverlayEscPress);
   };
 
@@ -29,7 +52,7 @@
   };
 
   uploadSelectImage.addEventListener('change', function () {
-    showUploadOverlay();
+    setCurrentPicture(showUploadOverlay);
   });
 
   uploadFormCancel.addEventListener('click', function () {
@@ -123,9 +146,7 @@
 
   var onFormLoad = function () {
     uploadOverlay.classList.add('hidden');
-    uploadForm.reset();
-    uploadImagePreview.removeAttribute('style');
-    sliderWrapper.classList.add('hidden');
+    resetUploadForm();
   };
 
   var onFormError = function (errorMessage) {
