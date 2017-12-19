@@ -80,7 +80,7 @@
         sliderHandle.addEventListener('mousedown', function (handleEvent) {
           handleEvent.preventDefault();
 
-          var minHandleX = Math.round(handleEvent.target.parentNode.getBoundingClientRect().x);
+          var minHandleX = Math.round(handleEvent.target.parentNode.getBoundingClientRect().left);
 
           var onMouseMove = function (moveEvent) {
             moveEvent.preventDefault();

@@ -1,14 +1,49 @@
 'use strict';
 (function () {
+  var FILE_TYPES = ['gif', 'jpg', 'jpeg', 'png'];
+
   var uploadOverlay = document.querySelector('.upload-overlay');
   var uploadForm = document.querySelector('.upload-form');
   var uploadFormCancel = uploadOverlay.querySelector('.upload-form-cancel');
   var uploadSelectImage = document.querySelector('#upload-select-image');
+  var uploadInput = uploadSelectImage.querySelector('.upload-input');
   var uploadEffectControls = uploadOverlay.querySelector('.upload-effect-controls');
   var uploadImagePreview = uploadOverlay.querySelector('.effect-image-preview');
   var sliderWrapper = uploadOverlay.querySelector('.upload-effect-level');
   var uploadFormHashtags = uploadOverlay.querySelector('.upload-form-hashtags');
   var uploadFormDescription = uploadOverlay.querySelector('.upload-form-description');
+
+  var resetUploadForm = function () {
+    uploadForm.reset();
+    uploadImagePreview.removeAttribute('style');
+    sliderWrapper.classList.add('hidden');
+  };
+
+  var loadPicture = function (callback) {
+    var file = uploadInput.files[0];
+    var fileName = file.name.toLowerCase();
+    var pictureWidth = 586; // px
+
+    uploadImagePreview.style.width = pictureWidth + 'px';
+
+    var matches = FILE_TYPES.some(function (it) {
+      return fileName.endsWith(it);
+    });
+
+    if (matches) {
+      var reader = new FileReader();
+
+      reader.addEventListener('load', function () {
+        uploadImagePreview.src = reader.result;
+
+        if (typeof callback === 'function') {
+          callback();
+        }
+      });
+
+      reader.readAsDataURL(file);
+    }
+  };
 
   var showUploadOverlay = function () {
     uploadOverlay.classList.remove('hidden');
@@ -17,6 +52,7 @@
 
   var hiddenUploadOverlay = function () {
     uploadOverlay.classList.add('hidden');
+    resetUploadForm();
     document.removeEventListener('keydown', onUploadOverlayEscPress);
   };
 
@@ -28,8 +64,8 @@
     }
   };
 
-  uploadSelectImage.addEventListener('change', function () {
-    showUploadOverlay();
+  uploadInput.addEventListener('change', function () {
+    loadPicture(showUploadOverlay);
   });
 
   uploadFormCancel.addEventListener('click', function () {
@@ -123,9 +159,7 @@
 
   var onFormLoad = function () {
     uploadOverlay.classList.add('hidden');
-    uploadForm.reset();
-    uploadImagePreview.removeAttribute('style');
-    sliderWrapper.classList.add('hidden');
+    resetUploadForm();
   };
 
   var onFormError = function (errorMessage) {
