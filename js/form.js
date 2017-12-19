@@ -1,5 +1,7 @@
 'use strict';
 (function () {
+  var FILE_TYPES = ['gif', 'jpg', 'jpeg', 'png'];
+
   var uploadOverlay = document.querySelector('.upload-overlay');
   var uploadForm = document.querySelector('.upload-form');
   var uploadFormCancel = uploadOverlay.querySelector('.upload-form-cancel');
@@ -17,19 +19,30 @@
     sliderWrapper.classList.add('hidden');
   };
 
-  var setCurrentPicture = function (callback) {
+  var loadPicture = function (callback) {
+    var file = uploadInput.files[0];
+    var fileName = file.name.toLowerCase();
     var pictureWidth = 586; // px
 
     uploadImagePreview.style.width = pictureWidth + 'px';
-    var reader = new FileReader();
-    reader.onload = function () {
-      uploadImagePreview.src = reader.result;
 
-      if (typeof callback === 'function') {
-        callback();
-      }
-    };
-    reader.readAsDataURL(uploadInput.files[0]);
+    var matches = FILE_TYPES.some(function (it) {
+      return fileName.endsWith(it);
+    });
+
+    if (matches) {
+      var reader = new FileReader();
+
+      reader.addEventListener('load', function () {
+        uploadImagePreview.src = reader.result;
+
+        if (typeof callback === 'function') {
+          callback();
+        }
+      });
+
+      reader.readAsDataURL(file);
+    }
   };
 
   var showUploadOverlay = function () {
@@ -51,8 +64,8 @@
     }
   };
 
-  uploadSelectImage.addEventListener('change', function () {
-    setCurrentPicture(showUploadOverlay);
+  uploadInput.addEventListener('change', function () {
+    loadPicture(showUploadOverlay);
   });
 
   uploadFormCancel.addEventListener('click', function () {
