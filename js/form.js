@@ -115,23 +115,7 @@
     var matches;
 
     matches = splittedFormHashtagsValue.some(function (item) {
-      return item[0] !== '#';
-    });
-
-    if (matches) {
-      return false;
-    }
-
-    matches = splittedFormHashtagsValue.some(function (item) {
-      return item.length < 2;
-    });
-
-    if (matches) {
-      return false;
-    }
-
-    matches = splittedFormHashtagsValue.some(function (item) {
-      return item.length > 20;
+      return item.length < 2 || item.length > 20 || item[0] !== '#';
     });
 
     if (matches) {
