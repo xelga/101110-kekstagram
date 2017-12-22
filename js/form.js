@@ -98,7 +98,6 @@
   });
 
   var formHashtagsValue;
-  var formValid = true;
 
   var splitFormHashtagsValue = function (params) {
     formHashtagsValue = params;
@@ -111,12 +110,36 @@
       return true;
     }
 
-    formValid = true;
     var splittedFormHashtagsValue = splitFormHashtagsValue(params);
     var hashtagsItem;
+    var matches;
+
+    matches = splittedFormHashtagsValue.some(function (item) {
+      return item[0] !== '#';
+    });
+
+    if (matches) {
+      return false;
+    }
+
+    matches = splittedFormHashtagsValue.some(function (item) {
+      return item.length < 2;
+    });
+
+    if (matches) {
+      return false;
+    }
+
+    matches = splittedFormHashtagsValue.some(function (item) {
+      return item.length > 20;
+    });
+
+    if (matches) {
+      return false;
+    }
 
     if (splittedFormHashtagsValue.length > 5) {
-      formValid = false;
+      return false;
     }
 
     for (var i = 0; i < splittedFormHashtagsValue.length; i++) {
@@ -124,24 +147,12 @@
 
       for (var j = i + 1; j < splittedFormHashtagsValue.length; j++) {
         if (hashtagsItem === splittedFormHashtagsValue[j].toLowerCase()) {
-          formValid = false;
+          return false;
         }
-      }
-
-      if (hashtagsItem[0] !== '#') {
-        formValid = false;
-      }
-
-      if (hashtagsItem.length < 2) {
-        formValid = false;
-      }
-
-      if (hashtagsItem.length > 20) {
-        formValid = false;
       }
     }
 
-    return formValid;
+    return true;
   };
 
   uploadFormHashtags.addEventListener('change', function () {
@@ -168,10 +179,9 @@
   };
 
   uploadForm.addEventListener('submit', function (event) {
-    if (!validateFormHashtags(formHashtagsValue)) {
-      event.preventDefault();
-    } else {
-      event.preventDefault();
+    event.preventDefault();
+
+    if (validateFormHashtags(formHashtagsValue)) {
       window.backend.save(new FormData(uploadForm), onFormLoad, onFormError);
     }
   });
