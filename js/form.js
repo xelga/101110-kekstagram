@@ -101,7 +101,7 @@
 
   var splitFormHashtagsValue = function (params) {
     formHashtagsValue = params;
-    var splittedFormHashtagsValue = formHashtagsValue.split(' ');
+    var splittedFormHashtagsValue = formHashtagsValue.toLowerCase().split(' ');
     return splittedFormHashtagsValue;
   };
 
@@ -111,32 +111,17 @@
     }
 
     var splittedFormHashtagsValue = splitFormHashtagsValue(params);
-    var hashtagsItem;
     var matches;
 
-    matches = splittedFormHashtagsValue.some(function (item) {
-      return item.length < 2 || item.length > 20 || item[0] !== '#';
+    matches = splittedFormHashtagsValue.some(function (item, index, array) {
+      return array.length > 5 ||
+            item.length < 2 ||
+            item.length > 20 ||
+            item[0] !== '#' ||
+            array.lastIndexOf(item) !== index;
     });
 
-    if (matches) {
-      return false;
-    }
-
-    if (splittedFormHashtagsValue.length > 5) {
-      return false;
-    }
-
-    for (var i = 0; i < splittedFormHashtagsValue.length; i++) {
-      hashtagsItem = splittedFormHashtagsValue[i].toLowerCase();
-
-      for (var j = i + 1; j < splittedFormHashtagsValue.length; j++) {
-        if (hashtagsItem === splittedFormHashtagsValue[j].toLowerCase()) {
-          return false;
-        }
-      }
-    }
-
-    return true;
+    return !matches;
   };
 
   uploadFormHashtags.addEventListener('change', function () {
